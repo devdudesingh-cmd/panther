@@ -156,3 +156,14 @@ for (const path of ["/book?kind=paid", "/login"]) {
     expect(axe.violations, JSON.stringify(axe.violations.map((v) => `${v.id}: ${v.nodes[0]?.target}`))).toEqual([]);
   });
 }
+
+test("admin requires a signed-in admin", async ({ page }) => {
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/login\?next=%2Fadmin/);
+});
+
+test("/bridge serves the tutor camera page and reports a missing session", async ({ page }) => {
+  await page.goto("/bridge");
+  await expect(page).toHaveTitle("Panther Tutor");
+  await expect(page.locator("#status")).toHaveText("missing session");
+});

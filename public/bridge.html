@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Panther Tutor</title>
+<!--
+  /bridge — the page the Recall.ai bot renders as its camera inside Google Meet.
+
+  What it does:
+    1. Reads ?session=<id>&t=<signed token> from the URL.
+    2. Asks /api/livekit/token (role=bridge) for a LiveKit token.
+    3. Joins the session's LiveKit room, publishes the meeting audio the bot
+       hears (getUserMedia is auto-granted inside the bot) so the tutor agent
+       can listen, and plays the agent's voice track back into the Meet.
+    4. Animates the Panther avatar with the tutor's audio level and shows
+       captions sent by the agent as LiveKit data messages ({type:"caption",text}).
+
+  Nothing here records or stores audio/video. This file is a standalone page
+  on purpose: Recall only needs a URL.
+-->
+<style>
+  :root { --paper:#FFF8F2; --red:#D6111E; --ink:#1B0E0E; --blush:#FFE3DC; --cream:#FFEFE4; }
+  html,body { margin:0; height:100%; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; overflow:hidden; }
+  .stage { position:relative; height:100%; display:grid; place-items:center; background: radial-gradient(60% 60% at 50% 42%, var(--blush) 0%, var(--paper) 70%); }
+  .avatar { width:min(52vh, 52vw); transform-origin: 50% 85%; transition: transform 90ms ease-out; filter: drop-shadow(0 20px 36px rgba(27,14,14,.22)); }
+  .name { position:absolute; top:4%; left:50%; transform:translateX(-50%); background:var(--red); color:#fff; font-weight:800; padding:.5em 1.1em; border-radius:999px; border:2px solid var(--ink); letter-spacing:-.01em; font-size: clamp(16px, 2.6vh, 28px); }
+  .caption { position:absolute; left:50%; bottom:6%; transform:translateX(-50%); max-width:86%; background:#fff; border:2px solid var(--ink); border-radius:1.2em; padding:.6em 1em; font-weight:700; font-size: clamp(18px, 3.4vh, 40px); line-height:1.25; box-shadow:0 4px 0 0 var(--ink); text-align:center; opacity:0; transition:opacity 180ms; }
+  .caption.show { opacity:1; }
+  .status { position:absolute; right:2%; bottom:2%; font-size:12px; color:#6f5a57; }
+  .mouth-talk { opacity:0; }
+  .talking .mouth-idle { opacity:0; }
+  .talking .mouth-talk { opacity:1; }
+  .eye { transform-origin:center; animation: blink 5s infinite; }
+  @keyframes blink { 0%,92%,100%{transform:scaleY(1)} 95%{transform:scaleY(.08)} }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="name" id="name">Panther Tutor</div>
+  <svg class="avatar" id="avatar" viewBox="0 0 240 240" role="img" aria-label="Panther tutor">
+    <ellipse cx="124" cy="178" rx="62" ry="46" fill="#1B0E0E"/>
+    <ellipse cx="124" cy="190" rx="34" ry="24" fill="#2B1A1A"/>
+    <path d="M58 86 L70 40 L104 70 Z" fill="#1B0E0E"/><path d="M68 78 L74 54 L92 70 Z" fill="#FF5A62"/>
+    <path d="M182 86 L170 40 L136 70 Z" fill="#1B0E0E"/><path d="M172 78 L166 54 L148 70 Z" fill="#FF5A62"/>
+    <ellipse cx="120" cy="110" rx="66" ry="56" fill="#1B0E0E"/>
+    <path d="M62 108c0-34 26-56 58-56s58 22 58 56" fill="none" stroke="#D6111E" stroke-width="9" stroke-linecap="round"/>
+    <rect x="52" y="98" width="18" height="30" rx="8" fill="#D6111E"/><rect x="170" y="98" width="18" height="30" rx="8" fill="#D6111E"/>
+    <path d="M68 126c-8 20 4 34 30 36" fill="none" stroke="#D6111E" stroke-width="6" stroke-linecap="round"/><circle cx="100" cy="163" r="6" fill="#D6111E"/>
+    <ellipse cx="120" cy="130" rx="30" ry="20" fill="#2B1A1A"/>
+    <g class="eye" style="transform-box:fill-box"><ellipse cx="96" cy="104" rx="14" ry="16" fill="#FFF8F2"/><circle cx="98" cy="106" r="7.5" fill="#1B0E0E"/><circle cx="101" cy="102" r="2.6" fill="#FFF8F2"/></g>
+    <g class="eye" style="transform-box:fill-box"><ellipse cx="144" cy="104" rx="14" ry="16" fill="#FFF8F2"/><circle cx="146" cy="106" r="7.5" fill="#1B0E0E"/><circle cx="149" cy="102" r="2.6" fill="#FFF8F2"/></g>
+    <path d="M112 124q8-6 16 0q-2 8-8 10q-6-2-8-10z" fill="#FF5A62"/>
+    <path class="mouth-idle" d="M108 138q12 10 24 0" fill="none" stroke="#FFF8F2" stroke-width="3.5" stroke-linecap="round"/>
+    <ellipse class="mouth-talk" id="mouth" cx="120" cy="140" rx="9" ry="5" fill="#FF5A62" stroke="#FFF8F2" stroke-width="2"/>
+    <path d="M78 128h18M78 136h16M144 128h18M146 136h16" stroke="#FFF8F2" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  </svg>
+  <div class="caption" id="caption"></div>
+  <div class="status" id="status">connecting…</div>
+</div>
+
+<script type="module">
+  // Pinned LiveKit client build. Replace with your own bundle if you prefer no CDN.
+  import { Room, RoomEvent, Track, createLocalAudioTrack } from "https://cdn.jsdelivr.net/npm/livekit-client@2.15.4/dist/livekit-client.esm.mjs";
+
+  const q = new URLSearchParams(location.search);
+  const sessionId = q.get("session");
+  const token = q.get("t");
+  const $ = (id) => document.getElementById(id);
+  const status = (t) => { $("status").textContent = t; };
+
+  let captionTimer;
+  function showCaption(text) {
+    const el = $("caption");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(captionTimer);
+    captionTimer = setTimeout(() => el.classList.remove("show"), Math.min(12000, 2500 + text.length * 60));
+  }
+
+  // Mouth + bounce driven by the tutor's audio level.
+  function animateFrom(mediaStream) {
+    const ctx = new AudioContext();
+    const src = ctx.createMediaStreamSource(mediaStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    src.connect(analyser);
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    const avatar = $("avatar"), mouth = $("mouth"), stage = $("stage");
+    let smooth = 0;
+    (function tick() {
+      analyser.getByteTimeDomainData(buf);
+      let sum = 0;
+      for (const v of buf) { const d = (v - 128) / 128; sum += d * d; }
+      const rms = Math.sqrt(sum / buf.length);
+      smooth = smooth * 0.7 + rms * 0.3;
+      const talking = smooth > 0.02;
+      stage.classList.toggle("talking", talking);
+      mouth.setAttribute("ry", String(4 + Math.min(10, smooth * 90)));
+      avatar.style.transform = `translateY(${-smooth * 60}px) scale(${1 + smooth * 0.6})`;
+      requestAnimationFrame(tick);
+    })();
+  }
+
+  async function main() {
+    if (!sessionId || !token) { status("missing session"); return; }
+    const res = await fetch("/api/livekit/token", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ session: sessionId, role: "bridge", token }),
+    });
+    if (!res.ok) { status(`token ${res.status}`); return; }
+    const { url, token: lkToken } = await res.json();
+
+    const room = new Room({ adaptiveStream: false, dynacast: false });
+    room.on(RoomEvent.TrackSubscribed, (track) => {
+      if (track.kind === Track.Kind.Audio) {
+        const el = track.attach();          // the Meet hears this through the bot's "camera" page audio
+        el.autoplay = true; el.playsInline = true;
+        document.body.appendChild(el);
+        animateFrom(new MediaStream([track.mediaStreamTrack]));
+        status("tutor connected");
+      }
+    });
+    room.on(RoomEvent.DataReceived, (payload) => {
+      try {
+        const msg = JSON.parse(new TextDecoder().decode(payload));
+        if (msg?.type === "caption" && typeof msg.text === "string") showCaption(msg.text);
+        if (msg?.type === "name" && typeof msg.text === "string") $("name").textContent = msg.text;
+      } catch {}
+    });
+    room.on(RoomEvent.Disconnected, () => status("disconnected"));
+
+    await room.connect(url, lkToken);
+    status("waiting for tutor…");
+
+    // Meeting audio → the agent. Inside the Recall bot, getUserMedia needs no click.
+    try {
+      const mic = await createLocalAudioTrack({ echoCancellation: false, noiseSuppression: false, autoGainControl: false });
+      await room.localParticipant.publishTrack(mic, { name: "meeting-audio" });
+    } catch (e) {
+      status("no meeting audio: " + (e?.message ?? e));
+    }
+  }
+
+  main().catch((e) => status("error: " + (e?.message ?? e)));
+</script>
+</body>
+</html>

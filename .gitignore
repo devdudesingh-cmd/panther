@@ -49,3 +49,6 @@ next-env.d.ts
 
 # netlify
 /.netlify/
+
+# realtime service
+/realtime/node_modules/

@@ -1,0 +1,17 @@
+{
+  "name": "panther-realtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Frames websocket relay: receives Recall.ai realtime video frames + mixed audio for a session and fans them out to the tutor agent. Nothing is written to disk.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ws": "8.18.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
