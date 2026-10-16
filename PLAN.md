@@ -17,6 +17,9 @@ One free 25-minute trial per family, then paid 40-minute sessions ($19 default, 
 | 6 | Trial length: brief says 25 min (offer) and 20 min (slot rules) | **25 min** (what parents are promised); one config value `trialMinutes` |
 | 7 | Awwwards: the network policy blocks awwwards.com, so I researched winners via secondary sources (see §5) | Enable the host and I'll screenshot references with Chromium before Phase 4 |
 | 8 | **Who is the tutor?** The backend you describe (Recall bot + LiveKit + `/bridge` output page + recap logic) is an AI agent that joins the Meet. The brief also says "professional tutors / high schoolers". | Copy says "your Panther tutor" and never claims a human when none is there. The Safety page states plainly that an AI tutoring assistant joins the call and how it works — parents of 7–10-year-olds must know this (FTC, COPPA notice, CA bot-disclosure law). Tell me the real setup and I'll word it exactly. |
+| 9 | Demo clip for the home page player | Player works as an illustrative transcript; drop a real recording at `public/demo/tutor-demo.mp3` and it plays it |
+| 10 | Legal entity name / governing law in Terms & Privacy | `config.legal.entityName = "Panther Tutoring"`, California law |
+| 11 | Business time-zone block-outs, pause switch, admin account | `/admin` for whichever emails are in `ADMIN_EMAILS` |
 
 ---
 
@@ -140,14 +143,19 @@ of the current crop; playful character-led sites (Resn, UI KIDS) are the kids-sp
 
 ---
 
-## 6. Build phases (each is tested before the next starts)
+## 6. Build phases (each tested before the next started) — all delivered
 
-| Phase | Scope | Tests |
+| Phase | Scope | Tests (all green) |
 |-------|-------|-------|
-| 1 | Scaffold, `config.ts`, design tokens, lint/typecheck, Netlify config | build passes |
-| 2 | DB migration, RLS, `book_slot()`, seed script | Vitest + PGlite: double-booking race, capacity 3, buffer, holds expire, trial uniqueness, RLS isolation |
-| 3 | Slot engine, booking API, Stripe Checkout + webhook, trial guard, fulfillment (Meet/Calendar/Resend/Recall), cancel/refund, reminders cron | unit tests with mocked providers: idempotent replay, late payment, refund rules, DST |
-| 4 | Marketing site + mascot + GSAP motion, content pages | Playwright smoke, axe accessibility, Lighthouse mobile |
-| 5 | Book wizard UI, auth, parent dashboard (uploads, reschedule, cancel, recaps, delete data) | Playwright with mocked API |
-| 6 | Admin, agent routes, LiveKit, `/bridge`, realtime frames service | route auth tests |
-| 7 | `.env.example`, README (setup + deploy), `TEST_CHECKLIST.md` | full test run |
+| 1 ✅ | Scaffold, `config.ts`, design tokens, lint/typecheck, Netlify config | build, contrast tests |
+| 2 ✅ | DB migration, RLS, `book_slot()`, seed script | Vitest + PGlite: double-booking race, capacity 3, buffer, holds expire, trial uniqueness, RLS isolation (18) |
+| 3 ✅ | Slot engine, booking API, Stripe Checkout + webhook, trial guard, fulfillment (Meet/Calendar/Resend/Recall), cancel/refund, reminders cron | service against real SQL with fake providers: idempotent replay, late payment, refund rules, reminders, DST slots (30) |
+| 4 ✅ | Marketing site + mascot + GSAP motion, content pages | Playwright: axe AA, CLS, math card, keyboard (18) |
+| 5 ✅ | Book wizard UI, auth, parent dashboard (uploads, reschedule, cancel, recaps, delete data) | Playwright with mocked API (20) |
+| 6 ✅ | Admin, agent routes, LiveKit, `/bridge`, Recall webhook, realtime frames service | token/HMAC/payload unit tests, auth e2e (+ relay tests) |
+| 7 ✅ | `.env.example`, README (setup + deploy), `TEST_CHECKLIST.md` | `npm run check` + `npm run test:e2e` |
+
+**Still needed from you to go live:** the items in §0, real keys in Netlify, and a manual pass through `TEST_CHECKLIST.md`
+against Stripe test mode, Supabase, Google and Recall. `bridge.html`/`backend.ts` from the brief never arrived; the
+equivalents here (`public/bridge.html`, `src/lib/providers/recall.ts`, `src/app/api/agent/*`, `src/app/api/livekit/token`,
+`realtime/`) are built to the providers' public APIs and are the places to drop your logic into.

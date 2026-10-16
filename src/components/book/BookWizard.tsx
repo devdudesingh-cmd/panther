@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { config, formatPrice } from "@/config";
-import { supabaseBrowser } from "@/lib/supabase/client";
 import EmailOtpForm from "@/components/auth/EmailOtpForm";
 import SlotPicker from "./SlotPicker";
 import { useDetectedTimeZone } from "./useSlots";
@@ -42,11 +41,14 @@ export default function BookWizard({ initialKind, cancelledId }: { initialKind: 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseBrowser()
-      .auth.getUser()
-      .then(({ data }) => {
-        if (data.user?.email) setUser({ id: data.user.id, email: data.user.email });
-      });
+    // Loaded on demand so the wizard's first paint doesn't wait for the auth SDK.
+    import("@/lib/supabase/client").then(({ supabaseBrowser }) =>
+      supabaseBrowser()
+        .auth.getUser()
+        .then(({ data }) => {
+          if (data.user?.email) setUser({ id: data.user.id, email: data.user.email });
+        }),
+    );
   }, []);
 
   const price = kind === "trial" ? 0 : config.pricing.paidSessionCents;
@@ -191,6 +193,7 @@ export default function BookWizard({ initialKind, cancelledId }: { initialKind: 
                     type="button"
                     className="underline"
                     onClick={async () => {
+                      const { supabaseBrowser } = await import("@/lib/supabase/client");
                       await supabaseBrowser().auth.signOut();
                       setUser(null);
                     }}

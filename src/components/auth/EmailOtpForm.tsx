@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase/client";
 
 /**
  * Email → 6-digit code sign-in. Works without leaving the page (important on
@@ -40,6 +39,7 @@ export default function EmailOtpForm({
       return;
     }
     setBusy(true);
+    const { supabaseBrowser } = await import("@/lib/supabase/client");
     const { error } = await supabaseBrowser().auth.signInWithOtp({
       email: trimmed,
       options: {
@@ -66,6 +66,7 @@ export default function EmailOtpForm({
       return;
     }
     setBusy(true);
+    const { supabaseBrowser } = await import("@/lib/supabase/client");
     const { data, error } = await supabaseBrowser().auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: "email" });
     setBusy(false);
     if (error || !data.user?.email) {
