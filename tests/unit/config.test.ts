@@ -52,6 +52,6 @@ describe("config", () => {
     expect(contrast(white, red)).toBeGreaterThanOrEqual(4.5); // white text on red buttons
     expect(contrast(ink, paper)).toBeGreaterThanOrEqual(7); // body text
     expect(contrast("#5e4542", paper)).toBeGreaterThanOrEqual(4.5); // ink-soft on paper
-    expect(contrast("#8a7572", paper)).toBeGreaterThanOrEqual(3); // ink-faint only for large/placeholder text
+    expect(contrast("#6f5a57", paper)).toBeGreaterThanOrEqual(4.5); // ink-faint (hints, captions)
   });
 });

@@ -101,6 +101,11 @@ export const config = {
     /** Bump this whenever the privacy policy or consent wording changes. Stored with every consent. */
     policyVersion: "2026-10-16",
     minParentAge: 18,
+    /** Legal entity shown in Terms/Privacy. Update when the company is registered. */
+    entityName: "Panther Tutoring",
+    governingLaw: "the State of California",
+    /** Human-readable date of the current policies. */
+    effectiveDate: "October 16, 2026",
   },
 } as const;
 

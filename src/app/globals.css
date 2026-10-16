@@ -11,7 +11,7 @@
   --color-red-soft: #ff5a62;
   --color-ink: #1b0e0e;
   --color-ink-soft: #5e4542;
-  --color-ink-faint: #8a7572;
+  --color-ink-faint: #6f5a57;
   --color-line: #ead9d2;
   --color-white: #ffffff;
   --color-mint: #cff0dc;
@@ -20,6 +20,9 @@
   --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-figtree), "Figtree", ui-sans-serif, system-ui, sans-serif;
 
+  --text-hero: clamp(2.75rem, 6.6vw, 6.5rem);
+  --text-hero--line-height: 0.95;
+  --text-hero--letter-spacing: -0.035em;
   --text-display-xl: clamp(3rem, 11vw, 9.5rem);
   --text-display-xl--line-height: 0.92;
   --text-display-xl--letter-spacing: -0.035em;
@@ -224,3 +227,37 @@
   position: relative;
   isolation: isolate;
 }
+
+/* ───────────── Motion helpers used by components ───────────── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(-1.5deg); }
+  25% { transform: translateX(-6px) rotate(-1.5deg); }
+  75% { transform: translateX(6px) rotate(-1.5deg); }
+}
+@keyframes bar {
+  from { transform: scaleY(0.55); }
+  to { transform: scaleY(1.15); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* SplitText masks: lines clip so characters can rise from below */
+.hero-line { overflow: clip; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.hero-char { display: inline-block; will-change: transform; }
+
+/* ───────────── Long-form content ───────────── */
+.prose-panther { font-size: 1.0625rem; line-height: 1.65; }
+.prose-panther h2 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; font-size: clamp(1.6rem, 3vw, 2.1rem); margin-top: 2.75rem; margin-bottom: 0.75rem; scroll-margin-top: 6rem; }
+.prose-panther h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+.prose-panther p, .prose-panther ul, .prose-panther ol { margin-block: 0.9rem; color: var(--color-ink-soft); }
+.prose-panther li { margin-block: 0.35rem; padding-left: 0.25rem; }
+.prose-panther ul { list-style: disc; padding-left: 1.4rem; }
+.prose-panther ol { list-style: decimal; padding-left: 1.4rem; }
+.prose-panther strong { color: var(--color-ink); font-weight: 700; }
+.prose-panther a { color: var(--color-red); font-weight: 600; text-underline-offset: 3px; }
+.prose-panther a:hover { text-decoration: underline; }
+.prose-panther .callout { margin-block: 1.5rem; padding: 1.1rem 1.3rem; border: 2px solid var(--color-ink); border-radius: 1.25rem; background: var(--color-cream); color: var(--color-ink); }
+.prose-panther table { width: 100%; border-collapse: collapse; margin-block: 1rem; font-size: 0.95rem; }
+.prose-panther th, .prose-panther td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--color-line); vertical-align: top; }
+.prose-panther th { font-family: var(--font-display); font-weight: 700; color: var(--color-ink); }

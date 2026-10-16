@@ -1,0 +1,46 @@
+/* Panther cub states. Pure CSS so it animates before (and without) JS. */
+.panther { display: block; overflow: visible; }
+
+.panther .panther-eye { animation: blink 5.2s infinite; }
+.panther .panther-eye:nth-child(2) { animation-delay: 0.08s; }
+
+.panther .panther-tail { animation: tail-sway 3.2s ease-in-out infinite; }
+
+.panther .panther-mouth-cheer,
+.panther .panther-sparkles { opacity: 0; transition: opacity 180ms ease-out; }
+.panther .panther-mouth-idle { opacity: 1; transition: opacity 180ms ease-out; }
+
+.panther[data-mood="cheer"] .panther-mouth-cheer,
+.panther[data-mood="cheer"] .panther-sparkles { opacity: 1; }
+.panther[data-mood="cheer"] .panther-mouth-idle { opacity: 0; }
+.panther[data-mood="cheer"] .panther-ear-l { animation: ear-wiggle 500ms ease-in-out 2; }
+.panther[data-mood="cheer"] .panther-ear-r { animation: ear-wiggle 500ms ease-in-out 2 reverse; }
+.panther[data-mood="cheer"] { animation: hop 520ms var(--ease-out-back, cubic-bezier(0.34, 1.56, 0.64, 1)) 1; }
+.panther[data-mood="cheer"] .panther-sparkles path { animation: twinkle 700ms ease-in-out infinite alternate; }
+.panther[data-mood="cheer"] .panther-sparkles path:nth-child(2) { animation-delay: 150ms; }
+.panther[data-mood="cheer"] .panther-sparkles path:nth-child(3) { animation-delay: 300ms; }
+
+.panther[data-mood="think"] .panther-eyes { transform: translateY(-2px); }
+.panther[data-mood="think"] .panther-ear-r { transform: rotate(-10deg); }
+
+@keyframes tail-sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes ear-wiggle {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-12deg); }
+}
+@keyframes hop {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-14px) scale(1.03, 0.97); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes twinkle {
+  from { transform: scale(0.7); opacity: 0.6; }
+  to { transform: scale(1.15); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panther *, .panther { animation: none !important; }
+}
