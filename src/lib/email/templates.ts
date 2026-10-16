@@ -66,7 +66,7 @@ export function confirmationEmail(ctx: Ctx): Mail {
 ${s.topic ? `<div style="margin-top:4px;">Topic: ${esc(s.topic)}</div>` : ""}
 <div style="margin-top:8px;">Google Meet: <a href="${s.meet_url ?? "#"}" style="color:${C.red};font-weight:700;">${esc(s.meet_url ?? "link coming soon")}</a></div>
 </td></tr></table>
-<p style="margin:0 0 12px;"><strong>How it works:</strong> open the Meet link a minute or two before the start. ${esc(tutor)} will join the call, say hi to ${kid}, and work through the topic together. You're welcome to stay nearby — many parents do.</p>
+<p style="margin:0 0 12px;"><strong>How it works:</strong> open the Meet link a minute or two before the start. ${esc(tutor)} will join the call, say hi to ${kid}, and work through the topic together. You're welcome to stay nearby — many parents do. Our note-taking assistant, ${esc(config.tutoring.assistantName)}, joins as well: it writes your recap and never records the call.</p>
 <p style="margin:0 0 12px;"><strong>Have homework or notes?</strong> Upload a photo so the tutor can see exactly what ${kid} is working on.</p>
 ${button(notesUrl, "Upload notes or homework")}
 <p style="margin:0;font-size:15px;">A calendar invite is on its way. Need to move it? You can reschedule or cancel for free up to ${config.sessions.freeCancelHours} hours before from your dashboard.</p>`,
@@ -79,7 +79,7 @@ ${ctx.childName ?? "Your child"}'s ${kindLabel(s)} is confirmed.
 When: ${when}${s.topic ? `\nTopic: ${s.topic}` : ""}
 Google Meet: ${s.meet_url ?? "link coming soon"}
 
-Open the Meet link a minute or two before the start. ${tutor} will join the call and work through the topic together.
+Open the Meet link a minute or two before the start. ${tutor} will join the call and work through the topic together. Our note-taking assistant, ${config.tutoring.assistantName}, joins as well — it writes your recap and never records the call.
 
 Upload notes or homework: ${notesUrl}
 

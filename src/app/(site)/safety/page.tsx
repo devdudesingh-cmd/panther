@@ -23,15 +23,18 @@ export default function SafetyPage() {
       <Prose>
         <h2 id="who">Who&apos;s on the call</h2>
         <p>
-          Sessions happen in a Google Meet created just for your family. <strong>Your Panther tutor joins as a participant named
-          &ldquo;{process.env.RECALL_BOT_NAME ?? "Panther Tutor"}&rdquo;.</strong> The tutor is Panther&apos;s own tutoring software — an
-          AI tutor we built for grades 2–4 and supervise — not a stranger from a marketplace. It follows a fixed, kid-appropriate script
-          of behaviours: it asks before telling, it never collects personal details, and it steers back to math if the conversation
-          wanders.
+          Sessions happen in a Google Meet created just for your family. <strong>Your tutor is a real person</strong> — one of
+          our {config.tutoring.tutorKinds}, selected and trained by us — who joins the Meet at the start time, says hi, and works
+          through the topic with your child. Tutors are coached to ask before telling, to never ask for personal details, and to
+          steer back to math if the conversation wanders.
         </p>
         <p>
-          A member of our team reviews every safety flag the tutor raises, and parents are always welcome to sit in. If you ever want
-          a human on the line, email us and we&apos;ll arrange it.
+          A second participant, <strong>&ldquo;{config.tutoring.assistantName}&rdquo;</strong>, is software we run. It listens so it
+          can write the recap and practice problems after the session and flag anything concerning for our team. It never records
+          audio or video and never talks to your child. You can see it in the participant list.
+        </p>
+        <p>
+          A member of our team reviews every safety flag, and parents are always welcome to sit in — many do.
         </p>
 
         <h2 id="kids-data">What we collect about your child</h2>

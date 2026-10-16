@@ -44,7 +44,7 @@ const groups = {
     RECALL_API_KEY: str,
     RECALL_REGION: z.string().default("us-west-2"),
     RECALL_WEBHOOK_SECRET: optional,
-    RECALL_BOT_NAME: z.string().default("Panther Tutor"),
+    RECALL_BOT_NAME: z.string().default("Panther Assistant"),
   }),
   livekit: z.object({
     LIVEKIT_URL: str,

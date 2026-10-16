@@ -28,9 +28,9 @@ export default function TermsPage() {
         <h2>2. What we provide</h2>
         <p>
           Live, one-on-one math tutoring for grades {config.sessions.grades[0]}–{config.sessions.grades.at(-1)} over Google Meet,
-          plus a written recap and practice problems after each session. Sessions are led by Panther&apos;s tutoring software with
-          human oversight, as described on our <Link href="/safety">safety page</Link>. Tutoring supports learning; it isn&apos;t a
-          substitute for school instruction or for professional educational assessment.
+          plus a written recap and practice problems after each session. Sessions are led by Panther tutors — {config.tutoring.tutorKinds} —
+          with a software assistant on the call that writes the recap, as described on our <Link href="/safety">safety page</Link>.
+          Tutoring supports learning; it isn&apos;t a substitute for school instruction or for professional educational assessment.
         </p>
 
         <h2>3. Booking, prices and payment</h2>

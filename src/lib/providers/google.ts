@@ -1,9 +1,10 @@
 import { JWT } from "google-auth-library";
 import { env } from "@/lib/env";
+import { config } from "@/config";
 
 /**
  * Google Workspace: Meet REST API (unique space per session, open access so the
- * tutor bot can join without a host) with a Calendar conferenceData fallback,
+ * assistant bot can join before anyone else) with a Calendar conferenceData fallback,
  * plus a calendar invite to the parent.
  *
  * Auth: a service account with domain-wide delegation impersonating
@@ -75,7 +76,8 @@ export function googleProvider(): MeetingProvider {
         description: input.description,
         start: { dateTime: input.startsAt, timeZone: input.parentTz },
         end: { dateTime: input.endsAt, timeZone: input.parentTz },
-        attendees: [{ email: input.parentEmail }],
+        // The parent plus the tutors' inbox(es), so whoever is on shift has the Meet link on their calendar.
+        attendees: [{ email: input.parentEmail }, ...config.tutoring.tutorInviteEmails.map((email) => ({ email }))],
         guestsCanInviteOthers: false,
         reminders: { useDefault: false, overrides: [{ method: "email", minutes: 60 }, { method: "popup", minutes: 10 }] },
         extendedProperties: { private: { panther_session_id: input.sessionId } },

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   if (code === "fatal") {
     try {
       await twilioProvider().alertOwner(
-        `${config.brand.name}: tutor bot failed (${evt.data?.data?.sub_code ?? "fatal"})${s ? ` for session ${s.id.slice(0, 8)}` : ""}. Check /admin.`,
+        `${config.brand.name}: session assistant bot failed (${evt.data?.data?.sub_code ?? "fatal"})${s ? ` for session ${s.id.slice(0, 8)}` : ""}. Check /admin.`,
       );
     } catch (e) {
       console.error("[recall] alert failed:", e);

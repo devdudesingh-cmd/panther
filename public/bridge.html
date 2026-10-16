@@ -4,17 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Panther Tutor</title>
+<title>Panther Assistant</title>
 <!--
   /bridge — the page the Recall.ai bot renders as its camera inside Google Meet.
 
   What it does:
     1. Reads ?session=<id>&t=<signed token> from the URL.
     2. Asks /api/livekit/token (role=bridge) for a LiveKit token.
-    3. Joins the session's LiveKit room, publishes the meeting audio the bot
-       hears (getUserMedia is auto-granted inside the bot) so the tutor agent
-       can listen, and plays the agent's voice track back into the Meet.
-    4. Animates the Panther avatar with the tutor's audio level and shows
+    3. Joins the session's LiveKit room and publishes the meeting audio the bot
+       hears (getUserMedia is auto-granted inside the bot) so the session
+       assistant can take notes for the recap. If the assistant ever publishes
+       audio (e.g. a short "recap sent" chime), it is played back into the Meet.
+    4. Animates the Panther avatar with the assistant's audio level and shows
        captions sent by the agent as LiveKit data messages ({type:"caption",text}).
 
   Nothing here records or stores audio/video. This file is a standalone page
@@ -38,8 +39,8 @@
 </head>
 <body>
 <div class="stage" id="stage">
-  <div class="name" id="name">Panther Tutor</div>
-  <svg class="avatar" id="avatar" viewBox="0 0 240 240" role="img" aria-label="Panther tutor">
+  <div class="name" id="name">Panther Assistant · taking notes</div>
+  <svg class="avatar" id="avatar" viewBox="0 0 240 240" role="img" aria-label="Panther assistant">
     <ellipse cx="124" cy="178" rx="62" ry="46" fill="#1B0E0E"/>
     <ellipse cx="124" cy="190" rx="34" ry="24" fill="#2B1A1A"/>
     <path d="M58 86 L70 40 L104 70 Z" fill="#1B0E0E"/><path d="M68 78 L74 54 L92 70 Z" fill="#FF5A62"/>
@@ -61,8 +62,9 @@
 </div>
 
 <script type="module">
-  // Pinned LiveKit client build. Replace with your own bundle if you prefer no CDN.
-  import { Room, RoomEvent, Track, createLocalAudioTrack } from "https://cdn.jsdelivr.net/npm/livekit-client@2.15.4/dist/livekit-client.esm.mjs";
+  // Pinned LiveKit client build, imported only once we know we have a session
+  // (so a CDN hiccup can't hide a clearer "missing session" message).
+  const LIVEKIT_ESM = "https://cdn.jsdelivr.net/npm/livekit-client@2.15.4/dist/livekit-client.esm.mjs";
 
   const q = new URLSearchParams(location.search);
   const sessionId = q.get("session");
@@ -105,6 +107,7 @@
 
   async function main() {
     if (!sessionId || !token) { status("missing session"); return; }
+    const { Room, RoomEvent, Track, createLocalAudioTrack } = await import(LIVEKIT_ESM);
     const res = await fetch("/api/livekit/token", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ session: sessionId, role: "bridge", token }),
@@ -119,7 +122,7 @@
         el.autoplay = true; el.playsInline = true;
         document.body.appendChild(el);
         animateFrom(new MediaStream([track.mediaStreamTrack]));
-        status("tutor connected");
+        status("assistant connected");
       }
     });
     room.on(RoomEvent.DataReceived, (payload) => {
@@ -132,7 +135,7 @@
     room.on(RoomEvent.Disconnected, () => status("disconnected"));
 
     await room.connect(url, lkToken);
-    status("waiting for tutor…");
+    status("listening for the recap…");
 
     // Meeting audio → the agent. Inside the Recall bot, getUserMedia needs no click.
     try {

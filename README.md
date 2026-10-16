@@ -7,7 +7,9 @@ the family's Google Meet. One free 25‑minute trial per family, then $19 per 40
 - **Data + auth + uploads:** Supabase (Postgres with row‑level security, email one‑time codes, private storage)
 - **Payments:** Stripe Checkout + webhooks (the webhook is the only thing that confirms a booking)
 - **Meetings:** Google Meet REST API (open‑access space per session) with a Calendar `conferenceData` fallback, plus a calendar invite
-- **Tutor:** Recall.ai bot whose camera renders `/bridge`, talking to the tutor agent over LiveKit; optional `realtime/` frames relay
+- **Tutors:** real people (professionals and trained high-school students) who join the Meet from the calendar invite
+- **Session assistant:** a Recall.ai bot ("Panther Assistant") that joins beside the tutor, relays audio over LiveKit to the
+  note-taking agent that writes the recap/practice and raises safety flags; optional `realtime/` frames relay
 - **Email / alerts:** Resend / Twilio
 - **Motion:** GSAP (ScrollTrigger, SplitText) + Lenis, loaded after first paint, fully disabled under `prefers-reduced-motion`
 
@@ -89,15 +91,17 @@ If the Meet API call fails we fall back to a Calendar event with `conferenceData
 
 ---
 
-## 5. Recall.ai, LiveKit and the tutor agent
+## 5. Recall.ai, LiveKit and the session assistant
 
-- `RECALL_API_KEY`, `RECALL_REGION`: the bot is scheduled at confirmation time with `join_at = start − 2 min` (always > 10 min
+- Tutors get every session on their calendar: put the tutoring inbox / tutor emails in `config.tutoring.tutorInviteEmails`
+  and they're invited to each session's calendar event (with the Meet link). The Meet space is open-access, so no host is needed.
+- `RECALL_API_KEY`, `RECALL_REGION`: the assistant bot is scheduled at confirmation time with `join_at = start − 2 min` (always > 10 min
   ahead, so it's a guaranteed scheduled bot). Its camera renders `https://<domain>/bridge?session=…&t=<signed token>`.
 - Add a Recall **status‑change webhook** pointing at `https://<domain>/api/recall/webhook` and put the workspace
   verification secret (or the endpoint's Svix secret) in `RECALL_WEBHOOK_SECRET`.
 - `LIVEKIT_URL/API_KEY/API_SECRET`: `/bridge` and the agent both mint tokens from `POST /api/livekit/token`.
-  Room name = session id; the bridge publishes meeting audio and plays the agent's voice track.
-- `AGENT_API_KEY`: the tutor agent's bearer token for
+  Room name = session id; the bridge publishes meeting audio so the note-taking agent can listen.
+- `AGENT_API_KEY`: the session assistant's bearer token for
   `GET /api/agent/sessions/:id` (context: kid's first name, grade, topic, signed note URLs, prior recaps),
   `POST /api/agent/sessions/:id/recap` (`{recap, practice:[{question,answer,hint?}]}`) and
   `POST /api/agent/sessions/:id/flag` (`{severity, note}`).

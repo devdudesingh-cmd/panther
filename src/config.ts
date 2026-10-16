@@ -20,7 +20,7 @@ export const config = {
   brand: {
     name: "Panther",
     tagline: "Live math help for kids in grades 2–4.",
-    /** Who parents and kids meet in the Google Meet. Kept generic on purpose; see PLAN.md §0 item 8. */
+    /** How we refer to the (human) tutor in emails and on the site. */
     tutorLabel: "your Panther tutor",
     supportEmail: "hello@panther.example",
     colors: {
@@ -31,6 +31,15 @@ export const config = {
       blush: "#FFE3DC",
       cream: "#FFEFE4",
     },
+  },
+
+  tutoring: {
+    /** Tutors are people: professionals and trained high-school students. */
+    tutorKinds: "professional tutors and trained high-school students",
+    /** Name of the note-taking assistant bot in the Meet participant list. */
+    assistantName: "Panther Assistant",
+    /** Tutor (or shared tutoring inbox) emails invited to every session's calendar event, so tutors get the Meet link. */
+    tutorInviteEmails: [] as string[],
   },
 
   pricing: {

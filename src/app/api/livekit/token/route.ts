@@ -18,8 +18,8 @@ const Body = z.object({
  * Mints a LiveKit access token for the session's room. The room name is the
  * session id (opaque, no PII) and identities are role-based.
  *  - bridge: the page the Recall bot renders in the Meet; publishes meeting
- *    audio, subscribes to the tutor's voice.
- *  - agent: the tutor agent; publishes its voice, subscribes to the meeting.
+ *    audio, subscribes to the assistant's voice (if it ever speaks).
+ *  - agent: the session assistant; subscribes to the meeting audio to take notes.
  */
 export async function POST(req: NextRequest) {
   await connection();

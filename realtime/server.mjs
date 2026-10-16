@@ -2,7 +2,8 @@
  * Panther realtime frames relay.
  *
  * Netlify functions can't hold a websocket open, so this tiny Node service
- * does. Deploy anywhere that runs long-lived processes (Fly.io, Render,
+ * does, forwarding the Meet's frames/audio to the session assistant (the
+ * note-taker). Deploy anywhere that runs long-lived processes (Fly.io, Render,
  * Railway, a VPS).
  *
  * Endpoints:
@@ -11,7 +12,7 @@
  *        Events: video_separate_png.data, audio_mixed_raw.data, participant_events.*
  *        Verified by the bridge token in the URL and, when RECALL_WEBHOOK_SECRET is
  *        set, by Recall's webhook-* / svix-* HMAC headers on the upgrade request.
- *   WS  /subscribe?session=<id>&key=<AGENT_API_KEY>  ← the tutor agent
+ *   WS  /subscribe?session=<id>&key=<AGENT_API_KEY>  ← the session assistant agent
  *        Receives the same JSON events, verbatim, in real time.
  *
  * Privacy: frames and audio live in memory for the milliseconds it takes to

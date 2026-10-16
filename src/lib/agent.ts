@@ -7,8 +7,9 @@ import { twilioProvider } from "@/lib/providers/sms";
 import { recapReadyEmail } from "@/lib/email/templates";
 
 /**
- * What the tutor agent is allowed to know and do. Routes under /api/agent/*
- * authenticate with AGENT_API_KEY and call these.
+ * What the session assistant (the note-taking agent behind the Recall bot) is
+ * allowed to know and do. Routes under /api/agent/* authenticate with
+ * AGENT_API_KEY and call these.
  */
 
 export interface SessionContext {
@@ -24,7 +25,7 @@ export interface SessionContext {
   notes: { name: string; url: string; contentType: string | null }[];
   /** Earlier recaps for the same child, newest first — for continuity. */
   history: { date: string; topic: string | null; recap: string }[];
-  tutorName: string;
+  assistantName: string;
   meetUrl: string | null;
 }
 
@@ -69,7 +70,7 @@ export async function sessionContext(sessionId: string): Promise<SessionContext 
     child: child ? { firstName: child.first_name, grade: child.grade } : null,
     notes,
     history,
-    tutorName: process.env.RECALL_BOT_NAME ?? "Panther Tutor",
+    assistantName: process.env.RECALL_BOT_NAME ?? config.tutoring.assistantName,
     meetUrl: session.meet_url,
   };
 }

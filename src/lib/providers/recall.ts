@@ -3,10 +3,11 @@ import { env } from "@/lib/env";
 import { signBridgeToken } from "@/lib/bridge-token";
 
 /**
- * Recall.ai: the bot that brings the tutor into the Google Meet. The bot's
- * camera renders our /bridge page (Output Media), which talks to the tutor
- * agent over LiveKit. Optionally, the bot also streams per-participant video
- * frames + mixed audio to the realtime frames service (never stored).
+ * Recall.ai: the note-taking assistant bot that joins the Google Meet beside
+ * the (human) tutor. Its camera renders our /bridge page (Output Media), which
+ * relays meeting audio to the assistant agent over LiveKit. Optionally, the
+ * bot also streams per-participant video frames + mixed audio to the realtime
+ * frames service (never stored).
  *
  * Bots scheduled >10 min ahead are guaranteed to join on time; our minimum
  * lead time (config.sessions.minLeadMinutes) keeps every bot in that class.
@@ -57,7 +58,7 @@ export function buildBotRequest(input: { sessionId: string; meetUrl: string; joi
     bot_name: opts.botName,
     join_at: input.joinAt,
     metadata: { session_id: input.sessionId },
-    // The bot's camera shows /bridge: the tutor's face and voice.
+    // The bot's camera shows /bridge: the assistant's card (topic, captions).
     output_media: {
       camera: { kind: "webpage", config: { url: bridgeUrl } },
     },

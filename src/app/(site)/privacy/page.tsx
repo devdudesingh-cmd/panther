@@ -24,7 +24,8 @@ export default function PrivacyPage() {
         <p>
           The Service is used by children under 13 with their parent or guardian&apos;s consent. We collect from children only what
           is reasonably necessary to provide tutoring: a first name, a grade level, the topic or homework the parent uploads, and
-          what the child says during a live session (processed in real time and not stored as audio or video). We do not knowingly
+          what the child says during a live session (heard by the tutor and processed in real time by our session assistant to
+          write the recap; never stored as audio or video). We do not knowingly
           collect any other personal information from children, we do not condition participation on disclosing more, and we never
           use children&apos;s information for marketing or advertising.
         </p>
@@ -46,22 +47,22 @@ export default function PrivacyPage() {
         <ul>
           <li>First name and grade, entered by the parent.</li>
           <li>Topic and any notes or homework the parent uploads.</li>
-          <li>Live session speech, processed in real time to provide tutoring and to generate a written recap and practice problems.</li>
+          <li>Live session speech, heard by the tutor and processed in real time by the session assistant to generate a written recap and practice problems.</li>
         </ul>
 
         <h2>3. How we use information</h2>
         <ul>
           <li>To schedule, deliver and follow up tutoring sessions, including confirmations, reminders and recaps.</li>
           <li>To process payments and refunds and prevent abuse (such as repeat free trials).</li>
-          <li>To keep children safe: the tutor flags concerning content for human review.</li>
+          <li>To keep children safe: tutors and the session assistant flag concerning content for review by our team.</li>
           <li>To operate, secure and improve the Service. We do not profile children or use their data to train general-purpose models.</li>
         </ul>
 
         <h2>4. Sharing</h2>
         <p>
           We share information only with processors that help us run the Service, bound by contracts limiting their use of it:
-          Google (Meet, Calendar), Stripe (payments), Supabase (database and storage), Resend (email), Recall.ai and LiveKit (joining
-          the meeting and carrying live audio, configured not to retain recordings), and Twilio (operational alerts to our team,
+          Google (Meet, Calendar), Stripe (payments), Supabase (database and storage), Resend (email), Recall.ai and LiveKit (bringing
+          the session assistant into the meeting and carrying live audio, configured not to retain recordings), and Twilio (operational alerts to our team,
           which never include a child&apos;s name). We may also disclose information when required by law or to protect safety.
           <strong> We do not sell personal information.</strong>
         </p>

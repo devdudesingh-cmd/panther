@@ -2,6 +2,14 @@ import Link from "next/link";
 
 const points = [
   {
+    title: "Real tutors, chosen by us",
+    body: "Professional tutors and trained high-school students — a real person on every call, never a chatbot pretending to be one.",
+  },
+  {
+    title: "A note-taker, not a recorder",
+    body: "Panther Assistant joins the Meet to write the recap and practice problems. It never records or stores the call.",
+  },
+  {
     title: "Parents hold the account",
     body: "Only a parent or guardian can sign up and book. Kids never create accounts or get emails from us.",
   },

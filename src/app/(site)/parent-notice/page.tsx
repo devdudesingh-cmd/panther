@@ -50,7 +50,7 @@ export default function ParentNoticePage() {
             </tr>
             <tr>
               <td>What your child says during the session</td>
-              <td>Processed live to tutor; used to write the recap</td>
+              <td>Heard by the tutor; processed live by {config.tutoring.assistantName} to write the recap</td>
               <td>
                 <strong>Not stored.</strong> Audio and video are never saved. Only the written recap remains.
               </td>
@@ -59,7 +59,7 @@ export default function ParentNoticePage() {
         </table>
         <p>
           We do <strong>not</strong> collect your child&apos;s last name, email, phone, photo, school, address, location, or any
-          persistent identifier. The tutor is instructed not to ask for personal details, and if a child volunteers them we do not
+          persistent identifier. Tutors are trained not to ask for personal details, and if a child volunteers them we do not
           save them.
         </p>
 
@@ -87,7 +87,7 @@ export default function ParentNoticePage() {
             <strong>Resend</strong> — sends our emails to you (never to your child).
           </li>
           <li>
-            <strong>Recall.ai</strong> and <strong>LiveKit</strong> — bring the tutor into the Meet and carry live audio. Configured so no recording is retained.
+            <strong>Recall.ai</strong> and <strong>LiveKit</strong> — bring {config.tutoring.assistantName} into the Meet and carry its live audio. Configured so no recording is retained.
           </li>
         </ul>
         <p>We never sell personal information, and we never use children&apos;s information for advertising.</p>

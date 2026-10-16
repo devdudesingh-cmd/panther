@@ -164,6 +164,6 @@ test("admin requires a signed-in admin", async ({ page }) => {
 
 test("/bridge serves the tutor camera page and reports a missing session", async ({ page }) => {
   await page.goto("/bridge");
-  await expect(page).toHaveTitle("Panther Tutor");
+  await expect(page).toHaveTitle("Panther Assistant");
   await expect(page.locator("#status")).toHaveText("missing session");
 });

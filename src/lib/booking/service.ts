@@ -355,7 +355,7 @@ export function createBookingService(deps: BookingDeps) {
         const m = await meetings.createMeeting({
           sessionId: session.id,
           title: `${config.brand.name}: ${kid}'s math session`,
-          description: `${config.brand.tutorLabel.replace(/^your /, "Your ")} will join this Google Meet${session.topic ? ` to work on ${session.topic}` : ""}. Upload notes or homework: ${siteUrl}/dashboard/s/${session.id}`,
+          description: `${config.brand.tutorLabel.replace(/^your /, "Your ")} will join this Google Meet${session.topic ? ` to work on ${session.topic}` : ""}. ${config.tutoring.assistantName} (our note-taking assistant) joins too and never records. Upload notes or homework: ${siteUrl}/dashboard/s/${session.id}`,
           startsAt: session.starts_at,
           endsAt: session.ends_at,
           parentEmail: c.parent.email,
