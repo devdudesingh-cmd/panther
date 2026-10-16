@@ -36,6 +36,8 @@ create table if not exists parents (
   timezone text not null default 'America/Los_Angeles',
   -- Parent confirmed they are 18+ and the child's parent/guardian.
   adult_guardian_confirmed_at timestamptz,
+  -- Stripe Customer, created on first checkout. Stripe holds the card; we never see it.
+  stripe_customer_id text unique,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -392,6 +394,57 @@ begin
   raise exception 'SLOT_FULL' using errcode = 'P0001';
 end $$;
 
+-- A payment arrived after the 10-minute hold lapsed. Try to take the same
+-- time again (any free seat). Raises NOT_ACTIVE, SLOT_PAST, SLOT_FULL.
+create or replace function revive_hold(
+  p_session_id uuid,
+  p_buffer_minutes integer,
+  p_max_seats integer,
+  p_hold_minutes integer
+) returns sessions
+language plpgsql security definer set search_path = public as $$
+declare
+  v_row sessions;
+  v_seat integer;
+  v_constraint text;
+begin
+  select * into v_row from sessions where id = p_session_id for update;
+  if not found or v_row.status <> 'expired' then
+    raise exception 'NOT_ACTIVE' using errcode = 'P0001';
+  end if;
+  if v_row.starts_at <= now() then
+    raise exception 'SLOT_PAST' using errcode = 'P0001';
+  end if;
+  if exists (
+    select 1 from blocked_times b
+     where tstzrange(b.starts_at, b.ends_at, '[)') && tstzrange(v_row.starts_at, v_row.ends_at, '[)')
+  ) then
+    raise exception 'SLOT_BLOCKED' using errcode = 'P0001';
+  end if;
+
+  for v_seat in 1..greatest(p_max_seats, 1) loop
+    begin
+      update sessions
+         set status = 'held', seat = v_seat,
+             block_until = ends_at + make_interval(mins => p_buffer_minutes),
+             hold_expires_at = now() + make_interval(mins => p_hold_minutes)
+       where id = p_session_id
+       returning * into v_row;
+      return v_row;
+    exception
+      when exclusion_violation then
+        get stacked diagnostics v_constraint = constraint_name;
+        if v_constraint = 'sessions_parent_no_overlap' then
+          raise exception 'PARENT_OVERLAP' using errcode = 'P0001';
+        end if;
+      when unique_violation then
+        raise exception 'TRIAL_USED' using errcode = 'P0001';
+    end;
+  end loop;
+
+  raise exception 'SLOT_FULL' using errcode = 'P0001';
+end $$;
+
 -- "Delete my child's data": removes the child row and scrubs everything that
 -- could describe the child from their sessions. Trial claims (hashes) stay.
 create or replace function delete_child_data(p_parent_id uuid, p_child_id uuid) returns integer
@@ -453,5 +506,6 @@ create policy consents_select_own on consents for select to authenticated using 
 -- Functions are security definer; keep them away from anon/authenticated callers.
 revoke all on function book_slot(uuid, uuid, session_kind, timestamptz, integer, integer, integer, integer, text, integer, text) from public;
 revoke all on function move_session(uuid, timestamptz, integer, integer) from public;
+revoke all on function revive_hold(uuid, integer, integer, integer) from public;
 revoke all on function delete_child_data(uuid, uuid) from public;
 revoke all on function expire_stale_holds() from public;

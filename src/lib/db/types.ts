@@ -14,6 +14,7 @@ export type ParentRow = {
   phone: string | null;
   timezone: string;
   adult_guardian_confirmed_at: string | null;
+  stripe_customer_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -209,6 +210,10 @@ export interface Database {
       expire_stale_holds: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      revive_hold: {
+        Args: { p_session_id: string; p_buffer_minutes: number; p_max_seats: number; p_hold_minutes: number };
+        Returns: SessionRow;
       };
     };
     Enums: {
