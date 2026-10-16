@@ -43,5 +43,11 @@ export default defineConfig({
     port,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
+    // Placeholder Supabase values so client code can mount; e2e tests mock /api/*.
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://example.supabase.co",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_test",
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
+    },
   },
 });
